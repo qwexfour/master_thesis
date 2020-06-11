@@ -1,0 +1,284 @@
+%--------------------------------------------------------------------------------%
+\chapter{Общие подходы к построению алгоритмов вычисления трансцендентных функций}
+%--------------------------------------------------------------------------------%
+
+\section{Различные подходы к вычислению трансцендентных функции}
+
+Как правило, в литературе выделяется три подхода к вычислению трансцендентных функций\cite{goldberg,muller}: 
+
+\begin{itemize}
+    \item \textbf{CORDIC} (\foreignlanguage{english}{\textbf{CO}ordinate \textbf{R}otation \textbf{DI}gital \textbf{C}omputer})
+    \item Использование таблиц
+    \item Полиномиальные и рациональные приближения
+\end{itemize}
+
+Следует отметить, что представленные подходы не исключают друг друга, и возможно их комбинирование.
+
+\textbf{CORDIC} --- итеративный алгоритм подсчета трансцендентных функций, предложенный Дж.~Е.~Волдером в 1959 году (обобщение для экспоненциальных и логарифмических функций было предложено Дж.~С.~Вальтером в 1971 году).
+Особенностью алгоритма является использование всего двух простых операций: сложения и сдвига.
+Данный алгоритм не является быстрым и применяется преимущественно для реализаций трансцендентных функций в аппаратуре или в библиотеках для устройств с ограниченными вычислительными возможностями, что обусловлено простотой требуемых операций\cite[с.~133]{muller}.
+Архитектура \foreignlanguage{english}{Intel Processor Graphics} обладает довольно обширным набором команд, что позволяет применять более требовательные к поддерживаемым операциям алгоритмы, дающие лучшую производительность. В связи с этим \textbf{CORDIC} не будет в дальнейшем рассматриваться в качестве возможного подхода.
+
+Алгоритмы основанные на использовании таблиц с заранее подсчитанными значениями функций имели широкое распространение с середины 80-ых по середину 90-ых годов.
+В ту эпоху экономить инструкции арифметики с плавающей точкой за счет доступа в память за значением таблицы было целесообразно, так как данные инструкции были чрезвычайно дорогостоящими.
+Таким образом, подход с использованием таблиц давал лучшие показатели производительности.
+
+Однако в современных процессорах операции над числами с плавающей точкой стали гораздо быстрее, стала распространена операция \foreignlanguage{english}{fused multiply-add} (присутствует в рассматриваемой архитектуре), что позволило увеличить как производительность вычислений, так и их точность.
+На текущий момент скорость вычислений во много раз превзошла скорость доступа в память.
+Соответственно, для современных архитектур использование таблиц не целесообразно, и алгоритмы, не основанные на табличном подходе, способны давать большую производительность, что подтверждается работой Марата Дукхана и Ричарда Вудука\cite{use-poly}.
+К тому же на момент написания данной работы в языке CM не были поддержаны глобальные таблицы констант, что еще значительнее замедляет возможную реализацию с таблицами, так как в таком случае в начале каждого вычислительного ядра придется выставлять все значения таблицы.
+
+В полиномиальных и рациональных приближениях используются полиномы (см.~\ref{work:approach:poly}) и рациональные дроби (см.~\ref{work:approach:rational}) для приближения трансцендентных функций.
+
+\begin{equation}
+    \label{work:approach:poly}
+    P_{n}(x) = a_{n} x^n + a_{n-1} x^{n-1} + \ldots +
+    a_2 x^2 + a_1 x + a_0
+\end{equation}
+
+\begin{equation}
+    \label{work:approach:rational}
+    R_{n,m}(x) = \frac{a_{n} x^n + a_{n-1} x^{n-1} + \ldots +
+    a_2 x^2 + a_1 x + a_0}{b_{m} x^m + b_{m-1} x^{m-1} + \ldots +
+    b_2 x^2 + b_1 x + b_0}
+\end{equation}
+
+Именно на полиномиальный подход был сделан упор в работе Марата Дукхана и Ричарда Вудука\cite{use-poly}, и именно его мы будем рассматривать в дальнейшем.
+
+\section{Общий алгоритм вычисления трансцендентных функций с помощью полиномов}
+
+Аппроксимация трансцендентных функций на всей области определения потребовала бы использования полиномов высокой степени.
+Поэтому область определения принято сокращать.
+Методы сокращения области в первую очередь опираются на математические свойства исследуемых функций\cite{hart}.
+Так для тригонометрических функций можно использовать их периодичность, формулы двойного аргумента и так далее.
+
+\begin{align*}
+    \cos{(\alpha + 2\pi)} = \cos{\alpha} \\
+    \cos{(\alpha + \pi)} = -\cos{\alpha} \\
+    \cos{2\alpha} = 2 \cos{\alpha}^{2} - 1
+\end{align*}
+
+Также можно использовать свойства представления чисел.
+Так само представление чисел с плавающей точкой содержит в себе неявное возведение в степень, что позволяет значительно сокращать область определения для экспоненциальных и логарифмических функций.
+
+Таким образом, вычисление трансцендентных функций можно разбить на три основных этапа\cite[с.~173]{muller}:
+
+\begin{itemize}
+    \item Сокращение области определения;
+    \item Аппроксимация функции на малой области;
+    \item Восстановление значения функции на всей области определения.
+\end{itemize}
+
+\section{Алгоритм Ремеза}
+
+Алгоритм Ремеза --- это итеративный алгоритм, основанный на теореме Чебышева об альтерансе, предложенный советским математиком Евгением Яковливичем Ремезом.
+Данный алгоритм позволяет находить многочлены наилучшего равномерного приближения непрерывных функций.
+
+\begin{theorem}[Теорема Чебышева об альтерансе]
+Чтобы полином $P_{n}(x)$ был полиномом наилучшего равномерного приближения непрерывной функции $f(x)$ на отрезке $[a, b]$, необходимо и достаточно существования на $[a, b]$ как минимум $n+2$ точек $x_{i}$
+\begin{equation}
+    \label{remez:cheb:dots_prop}
+    a \leq x_{0} < x_{1} < x_{2} < \ldots < x_{n} < x_{n+1} \leq b
+\end{equation}
+таких что:
+\begin{equation}
+    P_{n}(x_{i}) - f(x_{i}) = (-1)^{i} \cdot (P_{n}(x_{0}) - f(x_{0})) = \| P_{n} - f \|_{C}
+\end{equation}
+\end{theorem}
+
+Данная теорема показывает, что для того чтобы аппроксимация была наилучшей по норме $C$, необходимо и достаточно, чтобы функция ошибки достигала значения максимальной ошибки минимум $n+2$ раз и при этом знак ошибки чередовался.
+
+Основываясь на данной теореме Е. Я. Ремез предложил следующий алгоритм.
+
+\begin{enumerate}
+    \item Взять произвольный набор $n+2$ точек $x_{0}, x_{1}, x_{2}, \ldots x_{n}, x_{n+1}$, удовлетворяющих неравенству \ref{remez:cheb:dots_prop};
+    \item Найти решение системы:
+    
+    \begin{equation}
+    \begin{cases}
+        p_{0} + p_{1}x_{0} + p_{1}x_{0}^{2} +\ldots + p_{n}x_{0}^{n} - f(x_{0}) &= +\epsilon \\
+        p_{0} + p_{1}x_{1} + p_{1}x_{1}^{2} +\ldots + p_{n}x_{1}^{n} - f(x_{1}) &= -\epsilon \\
+        p_{0} + p_{1}x_{2} + p_{1}x_{2}^{2} +\ldots + p_{n}x_{2}^{n} - f(x_{2}) &= +\epsilon \\
+        \ldots \\
+        p_{0} + p_{1}x_{n+1} + p_{1}x_{n+1}^{2} +\ldots + p_{n}x_{n+1}^{n} - f(x_{n+1}) &= (-1)^{n+1}\epsilon
+    \end{cases}    
+    \end{equation}
+    
+    Данная система состоит из $n+2$ уравнений, и имеет $n+2$ неизвестных: $p_{0}, p_{1}, p_{2}, \ldots p_{n}, \epsilon$.
+    Что означает, что в невырожденном случае данная система имеет единственное решение.
+    Решение системы задает полином $P_n(x) = p_{0} + p_{1}x + p_{1}x^{2} +\ldots + p_{n}x^{n}$.
+    
+    \item Взять в качестве точек $x_{0}, x_{1}, x_{2}, \ldots x_{n}, x_{n+1}$ точки экстремума функции $P_{n} - f$ и перейти к шагу 2.
+\end{enumerate}
+
+Доказано, что данный алгоритм сходится к оптимальному полиному\cite{remez-proof}.
+
+В данной работе была использована реализация данного алгоритма в библиотеке Boost\cite{remez-boost}.
+
+\section{Вычисление полиномов}
+
+Задан полином:
+\begin{equation}
+    P_{n}(x) = a_{n} x^n + a_{n-1} x^{n-1} + \ldots +
+    a_2 x^2 + a_1 x + a_0
+\end{equation}
+Необходимо вычислить значение $P_{n}(x_0)$ для некоторого конкретного $x_0$.
+Существует два основных подхода для решения данной задачи.
+
+\subsubsection{Схема Хорнера}
+
+В схеме Хорнера вычисления производятся в следующем порядке:
+\begin{multline}
+    P_{n}(x) = a_{n} \cdot x^n + a_{n-1} \cdot x^{n-1} + \ldots +
+    a_2 \cdot x^2 + a_1 \cdot x + a_0 = \\
+    (( \ldots ((a_{n} \cdot x + a_{n-1}) \cdot x + a_{n-2}) \ldots ) \cdot x + a_{1}) \cdot x + a_{0}
+\end{multline}
+
+Для полинома $n$-ой степени необходимо ровно $n$ умножений и $n$ сложений, чтобы получить результат.
+При условии, что в архитектуре присутствует инструкция \foreignlanguage{english}{fused multiply-add}, умножение и сложение можно объединить. В таком случае достаточно всего $n$ инструкций для подсчета полинома $n$-ой степени.
+
+Недостатком данного подхода являются прямые зависимости по данным между двумя последовательными инструкциями, никакие две инструкции \foreignlanguage{english}{fused multiply-add} невозможно выполнить параллельно.
+Что делает данный подход потенциально неоптимальным для VLIW архитектур, или архитектур с поддержкой внеочередного исполнения инструкций.
+
+\begin{figure}[h]
+\centering
+\begin{tikzpicture}[square/.style={rectangle, draw=gray, ultra thick, minimum size=35pt}]
+    % main column
+    \node[square]   (fma_n_1)                           {\textbf{fma}};
+    \node[square]   (fma_n_2)   [below=of fma_n_1]      {\textbf{fma}};
+    \node           (ldots)     [below=10pt of fma_n_2] {$\ldots$};
+    \node[square]   (fma_1)     [below=10pt of ldots]   {\textbf{fma}};
+    \node[square]   (fma_0)     [below=of fma_1]        {\textbf{fma}};
+    \node           (res)       [below=of fma_0]        {$P_{n}(x)$};
+    
+    % x-es
+    \node           (x_fma_n_1) [left=10pt of fma_n_1]  {$x$};
+    \node           (x_fma_n_2) [left=10pt of fma_n_2]  {$x$};
+    \node           (x_fma_1)   [left=10pt of fma_1]    {$x$};
+    \node           (x_fma_0)   [left=10pt of fma_0]    {$x$};
+    
+    % a-s
+    \node           (a_n)       [above=10pt of fma_n_1] {$a_{n}$};
+    \node           (a_n_1)     [right=10pt of fma_n_1] {$a_{n-1}$};
+    \node           (a_n_2)     [right=10pt of fma_n_2] {$a_{n-2}$};
+    \node           (a_1)       [right=10pt of fma_1]   {$a_{1}$};
+    \node           (a_0)       [right=10pt of fma_0]   {$a_{0}$};
+    
+    % arrows of x-es
+    \draw[gray, thick,->] (x_fma_n_1.east) -- (fma_n_1.west);
+    \draw[gray, thick,->] (x_fma_n_2.east) -- (fma_n_2.west);
+    \draw[gray, thick,->] (x_fma_1.east) -- (fma_1.west);
+    \draw[gray, thick,->] (x_fma_0.east) -- (fma_0.west);
+    
+    % arrows of a-s
+    \draw[gray, thick,->] (a_n.south) -- (fma_n_1.north);
+    \draw[gray, thick,->] (a_n_1.west) -- (fma_n_1.east);
+    \draw[gray, thick,->] (a_n_2.west) -- (fma_n_2.east);
+    \draw[gray, thick,->] (a_1.west) -- (fma_1.east);
+    \draw[gray, thick,->] (a_0.west) -- (fma_0.east);
+    
+    % arrows between layers
+    \draw[gray, very thick,->] (fma_n_1.south) -- (fma_n_2.north);
+    \draw[gray, very thick,->] (fma_n_2.south) -- (ldots.north);
+    \draw[gray, very thick,->] (ldots.south) -- (fma_1.north);
+    \draw[gray, very thick,->] (fma_1.south) -- (fma_0.north);
+    \draw[gray, very thick,->] (fma_0.south) -- (res.north);
+    
+\end{tikzpicture}
+\caption{Схема вычисления значения полинома по схеме Хорнера}
+\end{figure}
+
+\subsubsection{Метод Эстрина}
+
+Иной подход предложил в своей работе Джеральд Эстрин\cite{estrin}.
+
+Рассмотрим самый простой случай, когда число коэффициентов полинома равно степени двойки, $n = 2^{k} - 1, k \in \mathbb{N}$.
+
+На первом шаге возводится в квадрат $x$, берутся пары подряд идущих коэффициентов полинома, старший умножается на $x$ и результат складывается с младшим. 
+Таким образом после первого шага имеем $\frac{n}{2}+1$ следующих значений: $x^{2}, a_{n} \cdot x + a_{n-1}, a_{n-2} \cdot x + a_{n-3}, \ldots , a_{3} \cdot x + a_{2}, a_{1} \cdot x + a_{0}$.
+Что требует одной операции возведения в квадрат и $\frac{n+1}{2}$ операций  \foreignlanguage{english}{fused multiply-add}.
+
+На втором шаге пары сумм из первого шага объединяются аналогичным образом, только с использованием до этого посчитанного значения $x^{2}$: $x^{2} \cdot (a_{n} \cdot x + a_{n-1}) + (a_{n-2} \cdot x + a_{n-3}), \ldots, x^{2} \cdot ( a_{3} \cdot x + a_{2}) + (a_{1} \cdot x + a_{0})$.
+Также считается $x^{4} = (x^{2})^{2}$.
+Что требует одной операции возведения в квадрат и $\frac{n+1}{4}$ операций  \foreignlanguage{english}{fused multiply-add}.
+
+Аналогично повторяется несколько шагов пока на последнем шаге не выполнится единственная инструкция \foreignlanguage{english}{fused multiply-add}, дающая итоговый результат.
+
+Суммарно получаем $\sum_{i=1}^{k} \frac{n+1}{2^{i}} = n$, как и в схеме Хорнера, операций \foreignlanguage{english}{fused multiply-add} плюс доплнительно $k-1$ операций возведения в квадрат.
+Однако если учитывать, что инструкции каждого шага можно исполнить параллельно за один такт, то нам понадобится всего $k = \log_{2} (n+1)$ тактов.
+В случае схемы Хорнера из-за зависимостей по данным мы получаем $n$ тактов даже с учетом возможности распараллеливания.
+
+\begin{figure}[h]
+\centering
+\begin{tikzpicture}[square/.style={rectangle, draw=gray, ultra thick, minimum size=35pt}]
+    % first step line
+    \node[square]   (sqr)                               {\textbf{sqr}};
+    \node           (x_a7)      [right=of sqr]         {$x$};
+    \node[square]   (fma_a7)    [right=10pt of x_a7]    {\textbf{fma}};
+    \node           (a6)        [right=10pt of fma_a7]  {$a_{6}$};
+    \node           (x_a5)      [right=10pt of a6]      {$x$};
+    \node[square]   (fma_a5)    [right=10pt of x_a5]    {\textbf{fma}};
+    \node           (a4)        [right=10pt of fma_a5]  {$a_{4}$};
+    \node           (x_a3)      [right=10pt of a4]      {$x$};
+    \node[square]   (fma_a3)    [right=10pt of x_a3]    {\textbf{fma}};
+    \node           (a2)        [right=10pt of fma_a3]  {$a_{2}$};
+    \node           (x_a1)      [right=10pt of a2]      {$x$};
+    \node[square]   (fma_a1)    [right=10pt of x_a1]    {\textbf{fma}};
+    \node           (a0)        [right=10pt of fma_a1]  {$a_{0}$};
+    
+    % inputs above 1st line
+    \node           (x_sqr)     [above=10pt of sqr]    {$x$};
+    \node           (a7)        [above=10pt of fma_a7]  {$a_{7}$};
+    \node           (a5)        [above=10pt of fma_a5]  {$a_{5}$};
+    \node           (a3)        [above=10pt of fma_a3]  {$a_{3}$};
+    \node           (a1)        [above=10pt of fma_a1]  {$a_{1}$};
+    
+    % second step line
+    \node[square]   (sqr_2)     [below=of sqr]          {\textbf{sqr}};
+    \node[square]   (fma_a7_2)  [below=of fma_a7]       {\textbf{fma}};
+    \node[square]   (fma_a3_2)  [below=of fma_a3]       {\textbf{fma}};
+    
+    % the final line
+    \node[square]   (fma_a7_3)  [below=of fma_a7_2]     {\textbf{fma}};
+    % result
+    \node           (res)       [below=of fma_a7_3]     {$P_{7}(x)$};
+    
+    
+    % arrows of inputs above 1st line
+    \draw[gray, thick,->] (x_sqr.south) -- (sqr.north);
+    \draw[gray, thick,->] (a7.south) -- (fma_a7.north);
+    \draw[gray, thick,->] (a5.south) -- (fma_a5.north);
+    \draw[gray, thick,->] (a3.south) -- (fma_a3.north);
+    \draw[gray, thick,->] (a1.south) -- (fma_a1.north);
+    
+    % arrows of inputs 1st line
+    \draw[gray, thick,->] (x_a7.east) -- (fma_a7.west);
+    \draw[gray, thick,->] (x_a5.east) -- (fma_a5.west);
+    \draw[gray, thick,->] (x_a3.east) -- (fma_a3.west);
+    \draw[gray, thick,->] (x_a1.east) -- (fma_a1.west);
+    \draw[gray, thick,->] (a6.west) -- (fma_a7.east);
+    \draw[gray, thick,->] (a4.west) -- (fma_a5.east);
+    \draw[gray, thick,->] (a2.west) -- (fma_a3.east);
+    \draw[gray, thick,->] (a0.west) -- (fma_a1.east);
+    
+    % arrows between 1st and 2nd line
+    \draw[gray, very thick,->] (sqr.south) -- (sqr_2.north);
+    \draw[gray, very thick,->] (fma_a7.south) -- (fma_a7_2.north);
+    \draw[gray, very thick,->] (fma_a3.south) -- (fma_a3_2.north);
+    \draw[gray, very thick,->] (sqr.south) -- (fma_a7_2.west);
+    \draw[gray, very thick,->] (sqr.south) -- (fma_a3_2.west);
+    \draw[gray, very thick,->] (fma_a5.south) -- (fma_a7_2.east);
+    \draw[gray, very thick,->] (fma_a1.south) -- (fma_a3_2.east);
+    
+    % arrows between 2nd and the last line
+    \draw[gray, very thick,->] (sqr_2.south) -- (fma_a7_3.west);
+    \draw[gray, very thick,->] (fma_a7_2.south) -- (fma_a7_3.north);
+    \draw[gray, very thick,->] (fma_a3_2.south) -- (fma_a7_3.east);
+    
+    % arrow to result
+    \draw[gray, thick,->] (fma_a7_3.south) -- (res.north);
+    
+\end{tikzpicture}
+\caption{Схема вычисления значения полинома 7-ой степени методом Эстрина}
+\end{figure}
+

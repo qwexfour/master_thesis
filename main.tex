@@ -1,0 +1,74 @@
+\documentclass[a4paper,14pt]{extreport} %размер бумаги устанавливаем А4, шрифт 14пунктов
+
+\usepackage[usenames,dvipsnames]{color}
+
+%\usepackage[numbered,framed,autolinebreaks]{mcode}
+
+\usepackage[T2A]{fontenc}
+\usepackage[utf8]{inputenc}%включаем свою кодировку: koi8-r или utf8 в UNIX, cp1251 в Windows
+\usepackage[english,russian]{babel}%используем русский и английский языки с переносами
+\usepackage{amssymb,amsfonts,amsmath,cite,enumerate,float} %подключаем нужные пакеты расширений
+\usepackage{graphicx} %хотим вставлять в диплом рисунки? [dvips]
+\usepackage{tikz}
+\usetikzlibrary{positioning}
+\graphicspath{{images/}}%путь к рисункам
+\usepackage{comment}
+\usepackage{subcaption}
+\usepackage{diagbox,multirow,makecell}
+\usepackage{array}
+\usepackage{listings}
+\usepackage{csquotes}
+
+\relpenalty=10000 %борьба с переносами в формулах
+
+\makeatletter
+\renewcommand{\@biblabel}[1]{#1.} % Заменяем библиографию с квадратных скобок на точку:
+\makeatother
+
+\usepackage{geometry} % Меняем поля страницы
+\geometry{left=2cm}% левое поле
+\geometry{right=1.5cm}% правое поле
+\geometry{top=1cm}% верхнее поле
+\geometry{bottom=2cm}% нижнее поле
+
+\DeclareMathOperator{\entier}{entier}
+\DeclareMathOperator{\sign}{sign}
+
+\renewcommand{\theenumi}{\arabic{enumi}}% Меняем везде перечисления на цифра.цифра
+\renewcommand{\labelenumi}{\arabic{enumi}}% Меняем везде перечисления на цифра.цифра
+\renewcommand{\theenumii}{.\arabic{enumii}}% Меняем везде перечисления на цифра.цифра
+\renewcommand{\labelenumii}{\arabic{enumi}.\arabic{enumii}.}% Меняем везде перечисления на цифра.цифра
+\renewcommand{\theenumiii}{.\arabic{enumiii}}% Меняем везде перечисления на цифра.цифра
+\renewcommand{\labelenumiii}{\arabic{enumi}.\arabic{enumii}.\arabic{enumiii}.}% Меняем везде перечисления на цифра.цифра
+
+\newtheorem{theorem}{Теорема}
+
+\lstdefinestyle{mycpp}{
+    language=C++,
+    basicstyle=\ttfamily\small,
+    breakatwhitespace=false,         
+    breaklines=true,                 
+    captionpos=b,                    
+    keepspaces=true,                 
+    showspaces=false,                
+    showstringspaces=false,
+    showtabs=false,                  
+    tabsize=2
+}
+\lstset{style=mycpp}
+
+\begin{document}
+\include{title}
+\tableofcontents
+\include{introduction}
+\include{review}
+\include{theory}
+\include{implementations}
+\include{general}
+\include{helpers}
+\include{exp}
+\include{log}
+\include{results}
+\bibliographystyle{ieeetr}
+\bibliography{biblio}
+\end{document}
