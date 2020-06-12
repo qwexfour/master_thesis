@@ -42,11 +42,32 @@
 
 \subsection{Производительность функции подсчета экспоненты}
 
-\begin{figure}[hbt]
-    \centering
-    \includegraphics[width=\textwidth]{exp_perf.png}
-    \caption{Результат замеров производительности функции подсчета экспоненты}
-    \label{hist:exp:perf}
+\begin{figure}[h]
+  \centering
+  \begin{tikzpicture}
+  \begin{axis}[
+    width = \textwidth,
+    height = 0.5\textwidth,
+    symbolic x coords={NUM,+UF,+OF,+NINF,+PINF,+NAN},
+    xtick = data,
+    xlabel = {Входные данные},
+    xlabel near ticks,
+    ylabel={Время исполнения, с},
+    legend style={at={(0.5,-0.25)},
+    anchor=north,legend columns=-1},
+    ybar,
+  ]
+  \addplot
+    coordinates {(NUM,4.732) (+UF,4.732) (+OF,4.752) (+NINF,4.966) (+PINF, 5.039) (+NAN, 5.16)};
+  \addplot
+    coordinates {(NUM,4.298) (+UF,4.298) (+OF,4.298) (+NINF,4.298) (+PINF, 4.3) (+NAN, 4.919)};
+  \addplot
+    coordinates {(NUM,4.913) (+UF,4.913) (+OF,4.913) (+NINF,4.913) (+PINF, 4.919) (+NAN, 4.919)};
+  \legend{OpenCL,CM с тэгом,CM без тэга}
+  \end{axis}
+  \end{tikzpicture}
+  \caption{Результат замеров производительности функции подсчета экспоненты}
+  \label{hist:exp:perf}
 \end{figure}
 
 Для замера производительности число итераций цикла было выставлено в 4000000.
@@ -67,11 +88,32 @@
 
 \subsection{Производительность функции подсчета логарифма}
 
-\begin{figure}[hbt]
-    \centering
-    \includegraphics[width=\textwidth]{log_perf.png}
-    \caption{Результат замеров производительности функции подсчета логарифма}
-    \label{hist:log:perf}
+\begin{figure}[h]
+  \centering
+  \begin{tikzpicture}
+  \begin{axis}[
+    width = \textwidth,
+    height = 0.5\textwidth,
+    symbolic x coords={POS,+DENORM,+ZERO,+NEG,+NINF,+PINF,+NAN},
+    xtick = data,
+    xlabel = {Входные данные},
+    xlabel near ticks,
+    ylabel={Время исполнения, с},
+    legend style={at={(0.5,-0.25)},
+    anchor=north,legend columns=-1},
+    ybar,
+  ]
+  \addplot
+    coordinates {(POS,2.983) (+DENORM,4.589) (+ZERO,4.735) (+NEG,4.752) (+NINF,4.850) (+PINF,4.859) (+NAN,4.879)};
+  \addplot
+    coordinates {(POS,4.604) (+DENORM,4.904) (+ZERO,5.078) (+NEG,5.091) (+NINF,5.236) (+PINF,5.292) (+NAN,5.506)};
+  \addplot
+    coordinates {(POS,5.370) (+DENORM,5.414) (+ZERO,5.423) (+NEG,5.444) (+NINF,5.482) (+PINF,5.506) (+NAN,5.506)};
+  \legend{OpenCL,CM с тэгом,CM без тэга}
+  \end{axis}
+  \end{tikzpicture}
+  \caption{Результат замеров производительности функции подсчета логарифма}
+  \label{hist:log:perf}
 \end{figure}
 
 Для замера производительности число итераций цикла было выставлено в 2000000.
