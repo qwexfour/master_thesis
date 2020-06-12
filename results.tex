@@ -193,10 +193,36 @@
 График ошибки логарифма на области $[\frac{\sqrt{2}}{8}, 4\sqrt{2}]$ представлен на рисунке~\ref{plot:log:small}.
 
 \begin{figure}[hbt]
-    \centering
-    \includegraphics[width=\textwidth]{log_error_vast.png}
-    \caption{Ошибка предложенного алгоритма подсчета логарифма на области $[\frac{\sqrt{2}}{8}, 4\sqrt{2}]$}
-    \label{plot:log:small}
+  \centering
+  \begin{tikzpicture}
+  \begin{axis}[
+    xmode = log,
+    xtick = {0.177, 0.354, 0.707, 1, 1.414, 2.828, 5.657},
+    xticklabels = {$\frac{\sqrt{2}}{8}$, $\frac{\sqrt{2}}{4}$, $\frac{\sqrt{2}}{2}$, 1, $\sqrt{2}$, $2\sqrt{2}$, $4\sqrt{2}$},
+    xlabel = {Аргумент функции},
+    xlabel near ticks,
+    ylabel = {Ошибка, ULP},
+    ylabel near ticks,
+    enlargelimits=false,
+    width=\textwidth,
+    height=0.6\textwidth]
+  \addplot[
+    only marks,
+    scatter,
+    mark=*,
+    mark size=0.5pt,
+    mark options={
+      fill=black,
+      draw=black,
+    },
+  ]
+  table{data/log_error_vast_dec.sample.dat};
+  %full data set, too much for pgfplots
+  %table{data/log_error_vast_dec.dat};
+  \end{axis}
+  \end{tikzpicture}
+  \caption{Ошибка предложенного алгоритма подсчета логарифма на области $[\frac{\sqrt{2}}{8}, 4\sqrt{2}]$}
+  \label{plot:log:small}
 \end{figure}
 
 Вне области $[\frac{\sqrt{2}}{4}, 2\sqrt{2}]$ ошибка логарифма не превышает 1 ULP.
