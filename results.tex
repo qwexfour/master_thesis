@@ -139,6 +139,40 @@
 Ошибка экспоненты не превышает 1 ULP на всей области определения.
 График ошибки экспоненты на области $[-4\ln{2}, 4\ln{2}]$ представлен на рисунке~\ref{plot:exp:small}.
 
+% if there's hifiplots than
+\tagged{hifiplots}{
+\begin{figure}[hbt]
+  \centering
+  \begin{tikzpicture}
+  \begin{axis}[
+    xtick = {-2.426, -1.733, -1.04, -0.347, 0, 0.347, 1.04, 1.733, 2.426},
+    xticklabels = {$-\frac{7\ln{2}}{2}$, $-\frac{5\ln{2}}{2}$, $-\frac{3\ln{2}}{2}$, $-\frac{\ln{2}}{2}$, 0, $\frac{\ln{2}}{2}$, $\frac{3\ln{2}}{2}$, $\frac{5\ln{2}}{2}$, $\frac{7\ln{2}}{2}$},
+    xlabel = {Аргумент функции},
+    xlabel near ticks,
+    ylabel = {Ошибка, ULP},
+    ylabel near ticks,
+    enlargelimits=false,
+    width=\textwidth,
+    height=0.6\textwidth]
+  \addplot[
+    only marks,
+    scatter,
+    mark=*,
+    mark size=0.5pt,
+    mark options={
+      fill=black,
+      draw=black,
+    },
+  ]
+  table{data/exp_error_vast_dec.dat};
+  \end{axis}
+  \end{tikzpicture}
+  \caption{Ошибка предложенного алгоритма подсчета экспоненты на области $[-4\ln{2}, 4\ln{2}]$}
+  \label{plot:exp:small}
+\end{figure}
+}
+%else
+\untagged{hifiplots}{
 \begin{figure}[hbt]
   \centering
   \begin{tikzpicture}
@@ -163,16 +197,47 @@
     },
   ]
   table{data/exp_error_vast_dec.sample.dat};
-  %full data set, too much for pgfplots
-  %table{data/exp_error_vast_dec.dat};
   \end{axis}
   \end{tikzpicture}
   \caption{Ошибка предложенного алгоритма подсчета экспоненты на области $[-4\ln{2}, 4\ln{2}]$}
   \label{plot:exp:small}
 \end{figure}
+}
 
 График ошибки экспоненты на всей области представимых значений \newline $[-744.5, 709.1]$ представлен на рисунке~\ref{plot:exp:whole}.
 
+% if there's hifiplots than
+\tagged{hifiplots}{
+\begin{figure}[hbt]
+  \centering
+  \begin{tikzpicture}
+  \begin{axis}[
+    xlabel = {Аргумент функции},
+    xlabel near ticks,
+    ylabel = {Ошибка, ULP},
+    ylabel near ticks,
+    enlargelimits=false,
+    width=\textwidth,
+    height=0.6\textwidth]
+  \addplot[
+    only marks,
+    scatter,
+    mark=*,
+    mark size=0.5pt,
+    mark options={
+      fill=black,
+      draw=black,
+    },
+  ]
+  table{data/exp_error_vast_whole_dec.dat};
+  \end{axis}
+  \end{tikzpicture}
+  \caption{Ошибка предложенного алгоритма подсчета экспоненты на всей области представимых значений $[-744.5, 709.1]$}
+  \label{plot:exp:whole}
+\end{figure}
+}
+% else
+\untagged{hifiplots}{
 \begin{figure}[hbt]
   \centering
   \begin{tikzpicture}
@@ -195,13 +260,12 @@
     },
   ]
   table{data/exp_error_vast_whole_dec.sample.dat};
-  %full data set, too much for pgfplots
-  %table{data/exp_error_vast_whole_dec.dat};
   \end{axis}
   \end{tikzpicture}
   \caption{Ошибка предложенного алгоритма подсчета экспоненты на всей области представимых значений $[-744.5, 709.1]$}
   \label{plot:exp:whole}
 \end{figure}
+}
 
 Слева на рисунке~\ref{plot:exp:whole} можно заметить малую область в которой ошибка не превышает $\frac{1}{2}$ ULP.
 Это область денормализованного результата.
