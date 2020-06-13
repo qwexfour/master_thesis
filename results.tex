@@ -143,30 +143,7 @@
 \tagged{hifiplots}{
 \begin{figure}[hbt]
   \centering
-  \begin{tikzpicture}
-  \begin{axis}[
-    xtick = {-2.426, -1.733, -1.04, -0.347, 0, 0.347, 1.04, 1.733, 2.426},
-    xticklabels = {$-\frac{7\ln{2}}{2}$, $-\frac{5\ln{2}}{2}$, $-\frac{3\ln{2}}{2}$, $-\frac{\ln{2}}{2}$, 0, $\frac{\ln{2}}{2}$, $\frac{3\ln{2}}{2}$, $\frac{5\ln{2}}{2}$, $\frac{7\ln{2}}{2}$},
-    xlabel = {Аргумент функции},
-    xlabel near ticks,
-    ylabel = {Ошибка, ULP},
-    ylabel near ticks,
-    enlargelimits=false,
-    width=\textwidth,
-    height=0.6\textwidth]
-  \addplot[
-    only marks,
-    scatter,
-    mark=*,
-    mark size=0.5pt,
-    mark options={
-      fill=black,
-      draw=black,
-    },
-  ]
-  table{data/exp_error_vast_dec.dat};
-  \end{axis}
-  \end{tikzpicture}
+  \includegraphics[width=\textwidth]{exp_error_vast.png}
   \caption{Ошибка предложенного алгоритма подсчета экспоненты на области $[-4\ln{2}, 4\ln{2}]$}
   \label{plot:exp:small}
 \end{figure}
@@ -210,28 +187,7 @@
 \tagged{hifiplots}{
 \begin{figure}[hbt]
   \centering
-  \begin{tikzpicture}
-  \begin{axis}[
-    xlabel = {Аргумент функции},
-    xlabel near ticks,
-    ylabel = {Ошибка, ULP},
-    ylabel near ticks,
-    enlargelimits=false,
-    width=\textwidth,
-    height=0.6\textwidth]
-  \addplot[
-    only marks,
-    scatter,
-    mark=*,
-    mark size=0.5pt,
-    mark options={
-      fill=black,
-      draw=black,
-    },
-  ]
-  table{data/exp_error_vast_whole_dec.dat};
-  \end{axis}
-  \end{tikzpicture}
+  \includegraphics[width=\textwidth]{exp_error_vast_whole.png}
   \caption{Ошибка предложенного алгоритма подсчета экспоненты на всей области представимых значений $[-744.5, 709.1]$}
   \label{plot:exp:whole}
 \end{figure}
@@ -279,6 +235,17 @@
 
 График ошибки логарифма на области $[\frac{\sqrt{2}}{8}, 4\sqrt{2}]$ представлен на рисунке~\ref{plot:log:small}.
 
+% if there's hifiplots than
+\tagged{hifiplots}{
+\begin{figure}[hbt]
+  \centering
+  \includegraphics[width=\textwidth]{log_error_vast.png}
+  \caption{Ошибка предложенного алгоритма подсчета логарифма на области $[\frac{\sqrt{2}}{8}, 4\sqrt{2}]$}
+  \label{plot:log:small}
+\end{figure}
+}
+% else
+\untagged{hifiplots}{
 \begin{figure}[hbt]
   \centering
   \begin{tikzpicture}
@@ -311,10 +278,22 @@
   \caption{Ошибка предложенного алгоритма подсчета логарифма на области $[\frac{\sqrt{2}}{8}, 4\sqrt{2}]$}
   \label{plot:log:small}
 \end{figure}
+}
 
 Вне области $[\frac{\sqrt{2}}{4}, 2\sqrt{2}]$ ошибка логарифма не превышает 1 ULP.
 График ошибки логарифма на всей области представимых значений $[2^{-1074}, 2^{1024})$ представлен на рисунке~\ref{plot:log:whole}.
 
+% if there's hifiplots than
+\tagged{hifiplots}{
+\begin{figure}[hbt]
+  \centering
+  \includegraphics[width=\textwidth]{log_error_vast_whole.png}
+  \caption{Ошибка предложенного алгоритма подсчета логарифма на всей области представимых значений $[2^{-1074}, 2^{1024})$}
+  \label{plot:log:whole}
+\end{figure}
+}
+% else
+\untagged{hifiplots}{
 \begin{figure}[hbt]
   \centering
   \begin{tikzpicture}
@@ -345,7 +324,7 @@
   \caption{Ошибка предложенного алгоритма подсчета логарифма на всей области представимых значений $[2^{-1074}, 2^{1024})$}
   \label{plot:log:whole}
 \end{figure}
-
+}
 
 \section{Выводы}
 
@@ -357,6 +336,17 @@
 График ошибки OpenCL реализации экспоненты на области $[-4\ln{2}, 4\ln{2}]$ представлен на рисунке~\ref{plot:ocl_exp:small}.
 
 
+% if there's hifiplots than
+\tagged{hifiplots}{
+\begin{figure}[hbt]
+  \centering
+  \includegraphics[width=\textwidth]{ocl_exp_error_vast.png}
+  \caption{Ошибка OpenCL реализации экспоненты на области $[-4\ln{2}, 4\ln{2}]$}
+  \label{plot:ocl_exp:small}
+\end{figure}
+}
+% else
+\untagged{hifiplots}{
 \begin{figure}[hbt]
   \centering
   \begin{tikzpicture}
@@ -388,12 +378,24 @@
   \caption{Ошибка OpenCL реализации экспоненты на области $[-4\ln{2}, 4\ln{2}]$}
   \label{plot:ocl_exp:small}
 \end{figure}
+}
 
 Реализация функции подсчета логарифма в стандартной библиотеке языка OpenCL, как и в предложенном решении достигает максимальной ошибки порядка 2 ULP вблизи единицы.
 При уменьшении или увеличении аргумента в два раза ошибка также, как в предложенном решении спадает до 1ULP.
 График ошибки OpenCL реализации логарифма на области $[\frac{\sqrt{2}}{8}, 4\sqrt{2}]$ представлен на рисунке~\ref{plot:ocl_log:small}.
 
 
+% if there's hifiplots than
+\tagged{hifiplots}{
+\begin{figure}[hbt]
+  \centering
+  \includegraphics[width=\textwidth]{ocl_log_error_vast.png}
+  \caption{Ошибка OpenCL реализации логарифма на области $[\frac{\sqrt{2}}{8}, 4\sqrt{2}]$}
+  \label{plot:ocl_log:small}
+\end{figure}
+}
+% else
+\untagged{hifiplots}{
 \begin{figure}[hbt]
   \centering
   \begin{tikzpicture}
@@ -426,6 +428,7 @@
   \caption{Ошибка OpenCL реализации логарифма на области $[\frac{\sqrt{2}}{8}, 4\sqrt{2}]$}
   \label{plot:ocl_log:small}
 \end{figure}
+}
 
 Можно также заметить, что ошибка OpenCL реализации логарифма смещена относительно нуля на порядка 0.2 ULP: для чисел меньших единицы в большую сторону, для чисел больших единицы -- в меньшую.
 
